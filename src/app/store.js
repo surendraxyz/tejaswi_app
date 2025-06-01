@@ -3,6 +3,7 @@ import { loginSlice } from "../features/login/loginSlice";
 import { registerSlice } from "../features/register/registerSlice";
 import { stickerGeneratorDroplistSlice } from "../features/utils/stickerGeneratorDroplistSlice";
 import { stickerGeneratorSlice } from "../features/sticker-generator/stickerGeneratorSlice";
+import { adminConfigSlice } from "../features/admin-config/adminConfigSlice";
 
 const store = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
         register: registerSlice.reducer,
         stickerGeneratorDrop: stickerGeneratorDroplistSlice.reducer,
         stickerGenerator: stickerGeneratorSlice.reducer,
+        adminConfig: adminConfigSlice.reducer,
 
     },
 
