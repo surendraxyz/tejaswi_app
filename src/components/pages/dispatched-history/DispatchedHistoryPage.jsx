@@ -1,5 +1,5 @@
-import { Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Box } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -14,10 +14,10 @@ const InnerContainer = styled(Box)(({ theme }) => ({
     margin: "auto",
 }));
 
-function DashBoardPage() {
+function DispatchedHistoryPage() {
     return (
-        <Container><InnerContainer>DashBoard Page</InnerContainer> </Container>
+        <Container><InnerContainer>Dispatched History Page</InnerContainer></Container>
     )
 }
 
-export default DashBoardPage 
+export default DispatchedHistoryPage

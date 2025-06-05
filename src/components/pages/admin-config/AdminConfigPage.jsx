@@ -1,10 +1,9 @@
-import { Box, Button, Grid, IconButton, MenuItem, Paper, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Grid, IconButton, MenuItem, Paper, Select, Stack, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useEffect, useRef, useState } from 'react';
 import { MdOutlineDeleteOutline } from "react-icons/md";
-import { IoAddCircle } from "react-icons/io5";
 import { useDispatch, useSelector } from 'react-redux';
-import { getAdminConfig } from '../../../features/admin-config/adminConfigSlice';
+import { createAdminConfig, createColourAdminConfig, deleteAdminConfig, getAdminConfig } from '../../../features/admin-config/adminConfigSlice';
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -73,12 +72,86 @@ function AdminConfigPage() {
     const runFunction = useRef(false)
     const dispatch = useDispatch()
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoader, setIsLoader] = useState(false);
+    const [isChecked, setIsChecked] = useState(false);
+    const [userData, setUserData] = useState({
+        tradingName: "",
+        textData: "",
+    });
+    const [colourData, setColourData] = useState({
+        colourInput: "colour",
+        textColourData: ""
+    });
 
     const { data } = useSelector((state) => state.adminConfig)
 
-    const handleSubmit = (e) => {
+    const handleSwitchChange = (event) => {
+        setIsChecked(event.target.checked);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        setUserData({
+            ...userData,
+            [name]: value
+        })
+    }
+
+    const handlecolourChange = (e) => {
+        const { name, value } = e.target
+        setColourData({
+            ...colourData,
+            [name]: value
+        })
+    }
+
+
+    const handleColourSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoader(true);
+        try {
+            const response = await dispatch(createColourAdminConfig({ colourData, isChecked })).unwrap();
+            if (response.status === 200) {
+                dispatch(getAdminConfig())
+            }
+            setUserData({
+                textColourData: "",
+            })
+            setIsLoader(false);
+        } catch (error) {
+            console.error(error)
+            setIsLoader(false);
+        }
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        try {
+            const response = await dispatch(createAdminConfig(userData)).unwrap();
+            if (response.status === 200) {
+                dispatch(getAdminConfig())
+            }
+            setUserData({
+                textData: "",
+            })
+            setIsLoading(false);
+        } catch (error) {
+            console.error(error)
+            setIsLoading(false);
+        }
+    }
+
+    const handleDelete = async (item) => {
+        try {
+            const response = await dispatch(deleteAdminConfig(item)).unwrap();
+            if (response.status === 200) {
+                dispatch(getAdminConfig())
+            }
+        } catch (error) {
+            console.error(error)
+        }
+
     }
 
     useEffect(() => {
@@ -87,13 +160,14 @@ function AdminConfigPage() {
             runFunction.current = true
         }
     }, [dispatch])
+
     return (
         <Container><InnerContainer>
             <BoxContainer elevation={2}>
                 <Header>
                     <Title>Admin Configuration</Title>
                 </Header>
-                <Box component="form" onSubmit={handleSubmit}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ marginBottom: "16px" }}>
                     <Grid container spacing={3}>
                         <Grid item size={{ xs: 12, md: 4, lg: 3 }}>
                             <SelectContainer
@@ -101,16 +175,14 @@ function AdminConfigPage() {
                                 required
                                 fullWidth
                                 name="tradingName"
-                                // onChange={handleChange}
-                                displayEmpty
+                                onChange={handleChange}
                             >
                                 <MenuItem value="none" disabled>
                                     Select Type
                                 </MenuItem>
-                                <MenuItem value="bharat">Quality</MenuItem>
-                                <MenuItem value="green">Colour</MenuItem>
-                                <MenuItem value="green">Product Type</MenuItem>
-                                <MenuItem value="green">Storage Location</MenuItem>
+                                <MenuItem value="quality">Quality</MenuItem>
+                                <MenuItem value="product_type">Product Type</MenuItem>
+                                <MenuItem value="storage_location">Storage Location</MenuItem>
                             </SelectContainer>
                         </Grid>
 
@@ -122,9 +194,9 @@ function AdminConfigPage() {
                                 placeholder="Enter Name"
                                 fullWidth
                                 required
-                                name="productionDate"
-                            // value={userData.productionDate}
-                            // onChange={handleChange}
+                                name="textData"
+                                value={userData.textData}
+                                onChange={handleChange}
                             />
                         </Grid>
 
@@ -137,12 +209,65 @@ function AdminConfigPage() {
                                     sx={{ textTransform: "capitalize" }}
                                     type="submit"
                                     loading={isLoading}
-                                ><IoAddCircle style={{ fontSize: "18px", marginRight: "6px" }} /> Add
+                                > Add
                                 </Button>
                             </Stack>
                         </Grid>
                     </Grid>
                 </Box>
+
+                <Box component="form" onSubmit={handleColourSubmit} >
+                    <Grid container spacing={3}>
+                        <Grid item size={{ xs: 12, md: 4, lg: 3 }}>
+                            <SelectContainer
+                                defaultValue="none"
+                                required
+                                fullWidth
+                                name="colourInput"
+                                value={colourData.colourInput || "colour"}
+                                onChange={handlecolourChange}
+                            >
+
+                                <MenuItem value="colour">Colour</MenuItem>
+                            </SelectContainer>
+                        </Grid>
+
+
+
+                        <Grid item size={{ xs: 12, md: 6, lg: 7 }}>
+                            <InputComponent
+                                type="text"
+                                placeholder="Enter Colour"
+                                fullWidth
+                                required
+                                name="textColourData"
+                                value={colourData.textColourData}
+                                onChange={handlecolourChange}
+                            />
+                        </Grid>
+
+                        <Grid item size={{ xs: 1, }}>
+                            <Switch checked={isChecked}
+                                onChange={handleSwitchChange} />
+                        </Grid>
+
+
+                        <Grid item size={{ xs: 12, md: 1, lg: 1 }}>
+                            <Stack direction="row" justifyContent="end">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    sx={{ textTransform: "capitalize" }}
+                                    type="submit"
+                                    loading={isLoader}
+                                > Add
+                                </Button>
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                </Box>
+
+
 
                 <TableContainerComponent>
                     <Table>
@@ -175,8 +300,7 @@ function AdminConfigPage() {
                                             justifyContent="center"
                                         >
                                             <Tooltip title="Delete">
-                                                <IconButton color="error">
-                                                    {/* onClick={() => handleDeleteClick(item)} */}
+                                                <IconButton color="error" onClick={() => handleDelete(item)}>
                                                     <MdOutlineDeleteOutline style={{ fontSize: "20px" }} />
                                                 </IconButton>
                                             </Tooltip>
@@ -200,10 +324,9 @@ function AdminConfigPage() {
                                             direction="row"
                                             spacing={1}
                                             justifyContent="center"
-                                        >
+                                        ><Switch checked={item?.is_white === true} />
                                             <Tooltip title="Delete">
-                                                <IconButton color="error">
-                                                    {/* onClick={() => handleDeleteClick(item)} */}
+                                                <IconButton color="error" onClick={() => handleDelete(item)}>
                                                     <MdOutlineDeleteOutline style={{ fontSize: "20px" }} />
                                                 </IconButton>
                                             </Tooltip>
@@ -229,8 +352,7 @@ function AdminConfigPage() {
                                             justifyContent="center"
                                         >
                                             <Tooltip title="Delete">
-                                                <IconButton color="error">
-                                                    {/* onClick={() => handleDeleteClick(item)} */}
+                                                <IconButton color="error" onClick={() => handleDelete(item)}>
                                                     <MdOutlineDeleteOutline style={{ fontSize: "20px" }} />
                                                 </IconButton>
                                             </Tooltip>
@@ -256,8 +378,7 @@ function AdminConfigPage() {
                                             justifyContent="center"
                                         >
                                             <Tooltip title="Delete">
-                                                <IconButton color="error">
-                                                    {/* onClick={() => handleDeleteClick(item)} */}
+                                                <IconButton color="error" onClick={() => handleDelete(item)}>
                                                     <MdOutlineDeleteOutline style={{ fontSize: "20px" }} />
                                                 </IconButton>
                                             </Tooltip>

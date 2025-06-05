@@ -7,6 +7,7 @@ import StickerGeneratorPage from "./components/pages/sticker-generator/StickerGe
 import AdminConfigPage from "./components/pages/admin-config/AdminConfigPage";
 import InventoryPage from "./components/pages/inventory/InventoryPage";
 import DispatchPage from "./components/pages/dispatch/DispatchPage";
+import DispatchedHistoryPage from "./components/pages/dispatched-history/DispatchedHistoryPage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/sticker-generator" element={<StickerGeneratorPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/dispatch" element={<DispatchPage />} />
+          <Route path="/dispatched-history" element={<DispatchedHistoryPage />} />
           <Route path="/admin-config" element={<AdminConfigPage />} />
         </Route>
       </Routes>

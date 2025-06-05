@@ -4,6 +4,7 @@ import { FaBarcode } from "react-icons/fa6";
 import { GrDocumentConfig } from "react-icons/gr";
 import { MdInventory2 } from "react-icons/md";
 import { PiPackageFill } from "react-icons/pi";
+import { MdOutlineManageHistory } from "react-icons/md";
 export const navbar_context = {
     links: [
         {
@@ -30,6 +31,11 @@ export const navbar_context = {
             title: "Dispatch",
             path: "/dispatch",
             icon: <PiPackageFill style={{ width: "22px" }} />
+        },
+        {
+            title: "Dispatched History",
+            path: "/dispatched-history",
+            icon: <MdOutlineManageHistory style={{ width: "22px" }} />
         },
         {
             title: "Admin Config",

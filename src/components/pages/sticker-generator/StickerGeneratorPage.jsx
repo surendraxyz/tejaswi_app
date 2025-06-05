@@ -1,11 +1,11 @@
-import { Box, Button, Grid, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography, Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import { Box, Button, Grid, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography, } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import React, { useEffect, useRef, useState } from 'react'
 import { stickerGeneratorDroplist } from '../../../features/utils/stickerGeneratorDroplistSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { createStickerGenerator, showStickerGenerator } from '../../../features/sticker-generator/stickerGeneratorSlice';
-import { IoMdClose } from "react-icons/io";
 import { MdOutlineQrCode } from "react-icons/md";
+import ProductBillModal from './ProductBillPage';
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -59,24 +59,21 @@ const InputComponent = styled(TextField)(({ theme }) => ({
     },
 }));
 
-const QRCodeImage = styled('img')({
-    width: '300px', height: '300px',
-    display: 'block',
-    margin: '0 auto',
-});
 
 function StickerGeneratorPage() {
     const dispatch = useDispatch()
     const [isLoading, setIsLoading] = useState(false);
     const [qrCodeData, setQrCodeData] = useState(null);
-    const [openQRDialog, setOpenQRDialog] = useState(false);
+    const [qrCodeScenner, setQrCodeScenner] = useState(null);
+
+    const [open, setOpen] = useState(false);
     const runFunction = useRef(false)
 
     const { droplist } = useSelector((state) => state.stickerGeneratorDrop)
 
     const [userData, setUserData] = useState({
-        tradingName: "",
-        shift: "",
+        tradingName: "bharat",
+        shift: "8AM-8PM",
         productionDate: "",
         serialNumber: "",
         quality: "",
@@ -121,26 +118,28 @@ function StickerGeneratorPage() {
         try {
             const response = await dispatch(createStickerGenerator(data)).unwrap();
             if (response.status === 200) {
-                const result = await dispatch(showStickerGenerator(response?.data?.id)).unwrap();
-                setQrCodeData(result)
-                setOpenQRDialog(true);
+                setQrCodeData(response?.data)
+                const qrCode = await dispatch(showStickerGenerator(response?.data?.id)).unwrap();
 
-                setUserData({
-                    tradingName: "",
-                    shift: "",
-                    productionDate: "",
-                    serialNumber: "",
-                    quality: droplist?.qualities[0]?.id || "",
-                    gsm: "",
-                    colour: droplist?.colours[0]?.id || "",
-                    productType: droplist?.product_types[0]?.id || "",
-                    netWeight: "",
-                    grossWeight: "",
-                    length: "",
-                    width: "",
-                    storageLocation: droplist?.storage_locations[0]?.id || "",
-                });
+                setQrCodeScenner(qrCode)
+                setOpen(true);
             }
+            setUserData({
+                tradingName: "",
+                shift: "",
+                productionDate: "",
+                serialNumber: "",
+                quality: droplist?.qualities[0]?.id || "",
+                gsm: "",
+                colour: droplist?.colours[0]?.id || "",
+                productType: droplist?.product_types[0]?.id || "",
+                netWeight: "",
+                grossWeight: "",
+                length: "",
+                width: "",
+                storageLocation: droplist?.storage_locations[0]?.id || "",
+            });
+
             setIsLoading(false);
         } catch (error) {
             console.error(error)
@@ -148,63 +147,7 @@ function StickerGeneratorPage() {
         }
     };
 
-    const handleCloseQRDialog = () => {
-        setOpenQRDialog(false);
-        setQrCodeData(null);
-    };
 
-    const handleDownloadQR = () => {
-        if (qrCodeData) {
-            const link = document.createElement('a');
-            link.href = qrCodeData;
-            link.download = 'product-qr-code.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    };
-
-
-    const handlePrintQR = () => {
-        if (qrCodeData) {
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Print QR Code </title>
-                        <style>
-                            body { 
-                                margin: 0; 
-                                padding: 20px; 
-                                display: flex; 
-                                justify-content: center; 
-                                align-items: center; 
-                                min-height: 80vh;
-                                font-family: Arial, sans-serif;
-                            }
-                            .container {
-                                text-align: center;
-                            }
-                            img { 
-                                max-width: 300px; 
-                                height: auto; 
-                            }
-                            h2 {
-                                margin-bottom: 10px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <img src="${qrCodeData}" alt="QR Code" />
-                        </div>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
-        }
-    };
 
     useEffect(() => {
         if (droplist?.colours?.length > 0 && !userData.colour) {
@@ -216,7 +159,7 @@ function StickerGeneratorPage() {
                 productType: droplist?.product_types[0]?.id
             }));
         }
-    }, [droplist, userData.colour]);
+    }, [droplist, userData]);
 
     useEffect(() => {
         if (!runFunction.current) {
@@ -227,6 +170,10 @@ function StickerGeneratorPage() {
 
     return (
         <>
+            {qrCodeData && qrCodeScenner && (
+                <ProductBillModal item={qrCodeData} qr={qrCodeScenner} open={open} setOpen={setOpen} />
+            )}
+
             <Container>
                 <InnerContainer >
                     <BoxContainer component="form" onSubmit={handleSubmit} elevation={2}>
@@ -237,16 +184,12 @@ function StickerGeneratorPage() {
                             <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
                                 <InputLabelComponent>Trading Name*</InputLabelComponent>
                                 <SelectContainer
-                                    value={userData.tradingName}
+                                    value={userData.tradingName || "bharat"}
                                     required
                                     fullWidth
                                     name="tradingName"
                                     onChange={handleChange}
-                                    displayEmpty
                                 >
-                                    <MenuItem value="" disabled>
-                                        Select Type
-                                    </MenuItem>
                                     <MenuItem value="bharat">Bharat</MenuItem>
                                     <MenuItem value="green">Green</MenuItem>
                                 </SelectContainer>
@@ -255,16 +198,12 @@ function StickerGeneratorPage() {
                             <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
                                 <InputLabelComponent>Shift*</InputLabelComponent>
                                 <SelectContainer
-                                    value={userData.shift}
+                                    value={userData.shift || "8AM-8PM"}
                                     required
                                     fullWidth
                                     name="shift"
                                     onChange={handleChange}
-                                    displayEmpty
                                 >
-                                    <MenuItem value="" disabled>
-                                        Select Shift
-                                    </MenuItem>
                                     <MenuItem value="8AM-8PM">A (8AM - 8PM)</MenuItem>
                                     <MenuItem value="8PM-8AM">B (8PM - 8AM)</MenuItem>
                                 </SelectContainer>
@@ -464,53 +403,6 @@ function StickerGeneratorPage() {
                 </InnerContainer>
             </Container>
 
-            {/* QR Code Dialog */}
-            <Dialog
-                open={openQRDialog}
-                onClose={handleCloseQRDialog}
-                maxWidth="sm"
-                fullWidth
-            >
-                <DialogTitle>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h6">
-                            QR Code Generated Successfully
-                        </Typography>
-                        <IconButton onClick={handleCloseQRDialog}>
-                            <IoMdClose />
-                        </IconButton>
-                    </Box>
-                </DialogTitle>
-                <DialogContent>
-                    {qrCodeData && (
-                        <Box textAlign="center">
-                            <Box my={3}>
-                                <QRCodeImage
-                                    src={qrCodeData}
-                                    alt="Generated QR Code"
-                                />
-                            </Box>
-
-                            <Stack direction="row" spacing={2} justifyContent="center">
-                                <Button
-                                    variant="outlined"
-                                    onClick={handleDownloadQR}
-                                    sx={{ textTransform: "capitalize" }}
-                                >
-                                    Download QR
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    onClick={handlePrintQR}
-                                    sx={{ textTransform: "capitalize" }}
-                                >
-                                    Print QR
-                                </Button>
-                            </Stack>
-                        </Box>
-                    )}
-                </DialogContent>
-            </Dialog>
         </>
     )
 }

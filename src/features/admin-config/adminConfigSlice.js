@@ -1,29 +1,196 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import Cookies from "js-cookie";
+import { refreshToken } from "../../utils/refreshToken";
+
+export const createAdminConfig = createAsyncThunk(
+    "adminConfig/createAdminConfig",
+    async (userData, thunkAPI) => {
+        let token = Cookies.get("access");
+        const { tradingName, textData } = userData
+
+        const params = {
+            config_type: tradingName,
+            action: "create",
+            name: textData
+        }
+        const makeRequest = async (token) => {
+            return await axios.post(
+                `${process.env.REACT_APP_API_KEY}/auth/admin-config/manage/`,
+                params,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return response;
+            }
+
+        } catch (error) {
+            if (error.response) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return response;
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
+
+export const createColourAdminConfig = createAsyncThunk(
+    "adminConfig/createColourAdminConfig",
+    async ({ colourData, isChecked }, thunkAPI) => {
+        let token = Cookies.get("access");
+        const { colourInput, textColourData } = colourData
+
+        const params = {
+            config_type: colourInput,
+            action: "create_colour",
+            name: textColourData,
+            is_white: isChecked
+        }
+        const makeRequest = async (token) => {
+            return await axios.post(
+                `${process.env.REACT_APP_API_KEY}/auth/admin-config/manage/`,
+                params,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return response;
+            }
+
+        } catch (error) {
+            if (error.response) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return response;
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
 
 export const getAdminConfig = createAsyncThunk(
     "adminConfig/getAdminConfig",
     async (_, thunkAPI) => {
-        try {
-            const params = {
-                config_type: "all",
-                action: "list",
-                name: ""
-            }
-            const response = await axios.post(
-                `${process.env.REACT_APP_API_KEY}/auth/admin-config/manage/`,
-                params, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }
-            );
+        let token = Cookies.get("access");
 
+        const params = {
+            config_type: "all",
+            action: "list",
+            name: ""
+        }
+        const makeRequest = async (token) => {
+            return await axios.post(
+                `${process.env.REACT_APP_API_KEY}/auth/admin-config/manage/`,
+                params,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
             if (response.status === 200) {
                 return response;
             }
+
         } catch (error) {
-            return thunkAPI.rejectWithValue(error.response);
+            if (error.response) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return response;
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
+
+export const deleteAdminConfig = createAsyncThunk(
+    "adminConfig/deleteAdminConfig",
+    async (item, thunkAPI) => {
+        let token = Cookies.get("access");
+        const { config_type, id } = item
+
+        const params = {
+            config_type: config_type,
+            action: "delete",
+            item_id: id
+        }
+        const makeRequest = async (token) => {
+            return await axios.post(
+                `${process.env.REACT_APP_API_KEY}/auth/admin-config/manage/`,
+                params,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return response;
+            }
+
+        } catch (error) {
+            if (error.response) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return response;
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
         }
     }
 );

@@ -140,6 +140,7 @@ function RegisterPage() {
                                 onChange={handleChange}
                             >
                                 <MenuItem value="none" disabled>  Select Role </MenuItem>
+                                <MenuItem value="admin_user">Admin</MenuItem>
                                 <MenuItem value="sticker_guys">Sticker User</MenuItem>
                                 <MenuItem value="dispatch_guys">Dispatch User</MenuItem>
                             </SelectContainer>
