@@ -89,6 +89,47 @@ export const getDispatchData = createAsyncThunk(
     }
 );
 
+export const getDispatchHistoryData = createAsyncThunk(
+    "dispatch/getDispatchHistoryData",
+    async (_, thunkAPI) => {
+        let token = Cookies.get("access");
+
+        const makeRequest = async (token) => {
+            return await axios.get(
+                `${process.env.REACT_APP_API_KEY}/auth/dispatch-manager/history/`,
+                {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return response;
+            }
+
+        } catch (error) {
+            if (error.response && error.response.status === 403) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return response;
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
+
 export const getDispatchQrData = createAsyncThunk(
     "dispatch/getDispatchQrData",
     async (product_Id, thunkAPI) => {
@@ -135,6 +176,7 @@ export const dispatchSlice = createSlice({
     initialState: {
         status: "idle",
         data: null,
+        dispatchData: null,
         error: null,
     },
     reducers: {},
@@ -151,6 +193,19 @@ export const dispatchSlice = createSlice({
                 state.error = null;
             })
             .addCase(getDispatchData.rejected, (state, action) => {
+                state.status = "error";
+                state.error = action.payload.message;
+            })
+            .addCase(getDispatchHistoryData.pending, (state) => {
+                state.status = "loading";
+                state.error = null;
+            })
+            .addCase(getDispatchHistoryData.fulfilled, (state, action) => {
+                state.status = "success";
+                state.dispatchData = action.payload.data
+                state.error = null;
+            })
+            .addCase(getDispatchHistoryData.rejected, (state, action) => {
                 state.status = "error";
                 state.error = action.payload.message;
             });

@@ -7,6 +7,8 @@ import { createDispatchData, getDispatchData, getDispatchQrData } from "../../..
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { FaRegSquareCheck } from "react-icons/fa6";
 import { BsFileEarmarkPdfFill } from "react-icons/bs";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -77,6 +79,34 @@ function DispatchPage() {
     const [cameraOpen, setCameraOpen] = useState(false);
 
     const { data } = useSelector((state) => state.dispatch)
+
+    const downloadPDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("Dispatch", 14, 15);
+        doc.setFontSize(12);
+        doc.setTextColor(40);
+
+        autoTable(doc, {
+            startY: 25,
+            head: [['Product Number', 'Product Type', 'Weight (kg)', 'Color', 'Quality']],
+            body: (data || []).map(item => [
+                item.product_number || '-',
+                item.product_type || '-',
+                item.net_weight || '-',
+                item.colour || '-',
+                item.quality || '-'
+            ]),
+            margin: { left: 14, right: 14 },
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [33, 150, 243] }
+        });
+
+        doc.save('dispatch.pdf');
+    };
+
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -290,6 +320,7 @@ function DispatchPage() {
                                 <Button
                                     variant="outlined"
                                     color="primary"
+                                    onClick={downloadPDF}
                                     sx={{ textTransform: "capitalize" }}
                                 ><BsFileEarmarkPdfFill style={{ marginRight: "10px" }} /> Download PDF
                                 </Button>

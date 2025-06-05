@@ -6,7 +6,7 @@ import { getInventory } from "../../../features/inventory/inventorySlice";
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
-    height: "calc(100vh - 70px)",
+    height: "max-content",
     background: "#06060",
     padding: "30px 0px",
 }));
