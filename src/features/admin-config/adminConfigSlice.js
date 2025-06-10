@@ -147,6 +147,55 @@ export const getAdminConfig = createAsyncThunk(
     }
 );
 
+export const getColorUpdateAdminConfig = createAsyncThunk(
+    "adminConfig/getColorUpdateAdminConfig",
+    async (updatedItem, thunkAPI) => {
+        let token = Cookies.get("access");
+        const { is_white, id } = updatedItem
+
+        const params = {
+            config_type: "colour",
+            action: "update_colour",
+            id: id,
+            is_white: is_white
+        }
+        const makeRequest = async (token) => {
+            return await axios.post(
+                `${process.env.REACT_APP_API_KEY}/auth/admin-config/manage/`,
+                params,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return response;
+            }
+
+        } catch (error) {
+            if (error.response) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return response;
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
+
 export const deleteAdminConfig = createAsyncThunk(
     "adminConfig/deleteAdminConfig",
     async (item, thunkAPI) => {

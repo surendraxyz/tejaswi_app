@@ -3,12 +3,10 @@ import { styled } from "@mui/material/styles";
 import { useEffect, useRef, useState } from "react";
 import { FaCamera } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
-import { createDispatchData, getDispatchData, getDispatchQrData } from "../../../features/dispatch/dispatchSlice";
+import { createDispatchData, deleteDispatchData, getDispatchData, getDispatchQrData } from "../../../features/dispatch/dispatchSlice";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { FaRegSquareCheck } from "react-icons/fa6";
-import { BsFileEarmarkPdfFill } from "react-icons/bs";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -66,6 +64,7 @@ const InputComponent = styled(TextField)(({ theme }) => ({
 
 function DispatchPage() {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
     const runFunction = useRef(false)
     const [qrData, setQrData] = useState([])
     const [isLoading, setIsLoading] = useState(false);
@@ -79,33 +78,6 @@ function DispatchPage() {
     const [cameraOpen, setCameraOpen] = useState(false);
 
     const { data } = useSelector((state) => state.dispatch)
-
-    const downloadPDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(16);
-        doc.text("Dispatch", 14, 15);
-        doc.setFontSize(12);
-        doc.setTextColor(40);
-
-        autoTable(doc, {
-            startY: 25,
-            head: [['Product Number', 'Product Type', 'Weight (kg)', 'Color', 'Quality']],
-            body: (data || []).map(item => [
-                item.product_number || '-',
-                item.product_type || '-',
-                item.net_weight || '-',
-                item.colour || '-',
-                item.quality || '-'
-            ]),
-            margin: { left: 14, right: 14 },
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [33, 150, 243] }
-        });
-
-        doc.save('dispatch.pdf');
-    };
-
-
 
 
     const handleChange = (e) => {
@@ -164,6 +136,7 @@ function DispatchPage() {
                     driverContactNumber: ""
                 });
             }
+            navigate("/dispatched-history")
             setIsLoading(false);
         } catch (error) {
             console.error(error)
@@ -185,7 +158,7 @@ function DispatchPage() {
             <InnerContainer >
                 <BoxContainer component="form" onSubmit={handleSubmit} elevation={2}>
                     <Header>
-                        <Title>Sticker Generator</Title>
+                        <Title>Dispatch Manager</Title>
                     </Header>
                     <Grid container spacing={3}>
                         <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
@@ -285,28 +258,32 @@ function DispatchPage() {
                                         <TableCell>{value?.colour}</TableCell>
                                         <TableCell>{value?.quality}</TableCell>
                                         <TableCell>{value?.net_weight}</TableCell>
-                                        <TableCell sx={{ width: "80px" }}><IconButton color="error"><MdOutlineDeleteOutline style={{ fontSize: "20px" }} /></IconButton></TableCell>
+                                        <TableCell sx={{ width: "80px" }}><IconButton color="error" onClick={() => dispatch(deleteDispatchData(value?.product_number))}><MdOutlineDeleteOutline style={{ fontSize: "20px" }} /></IconButton></TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
 
-                        <Table>
+                        <Table sx={{
+                            border: "1px solid rgba(0, 0, 0, 0.2)",
+                            width: "100%",
+                            background: "#F9FAFB",
+                        }}>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell colSpan={7} sx={{ fontSize: "16px", fontWeight: 600, padding: "20px 0 8px 0", }}>
+                                    <TableCell colSpan={7} sx={{ fontSize: "16px", fontWeight: 600, borderBottom: "0px", padding: "8px 16px", }}>
                                         Dispatch Summary
                                     </TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {data?.map((value, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{value?.product_type} - {value?.quality} - ({value?.colour}) - {value?.net_weight}</TableCell>
+                                    <TableRow key={index} >
+                                        <TableCell sx={{ fontSize: "13px", borderBottom: "0px", padding: "3px 16px", }}>{value?.product_type} - {value?.quality} - ({value?.colour}) - {value?.net_weight}</TableCell>
                                     </TableRow>
                                 ))}
                                 <TableRow>
-                                    <TableCell sx={{ fontWeight: 600 }}>
+                                    <TableCell sx={{ fontSize: "13px", fontWeight: 600, padding: "3px 16px", }}>
                                         Total Items: {data?.length || 0} | Total Weight:{" "}
                                         {data?.reduce((acc, curr) => acc + parseFloat(curr?.net_weight || 0), 0).toFixed(2)}
                                     </TableCell>
@@ -317,17 +294,11 @@ function DispatchPage() {
 
                         <Grid item size={{ xs: 12, }}>
                             <Stack direction="row" gap={3}>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={downloadPDF}
-                                    sx={{ textTransform: "capitalize" }}
-                                ><BsFileEarmarkPdfFill style={{ marginRight: "10px" }} /> Download PDF
-                                </Button>
+
                                 <Button
                                     variant="contained"
                                     color="primary"
-                                    sx={{ textTransform: "capitalize" }}
+                                    sx={{ textTransform: "capitalize", background: "#FF0000" }}
                                     type="submit"
                                     disabled={isLoading}
                                 ><FaRegSquareCheck style={{ marginRight: "10px" }} /> Finalize Dispatch

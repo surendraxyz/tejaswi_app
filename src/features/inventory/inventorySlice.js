@@ -44,6 +44,86 @@ export const getInventory = createAsyncThunk(
     }
 );
 
+export const updateInventory = createAsyncThunk(
+    "inventory/updateInventory",
+    async ({ id, inventoryData }, thunkAPI) => {
+        let token = Cookies.get("access");
+
+        const makeRequest = async (token) => {
+            return await axios.put(
+                `${process.env.REACT_APP_API_KEY}/auth/sticker-generator/update/${id}/`,
+                inventoryData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return response;
+            }
+
+        } catch (error) {
+            if (error.response) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return response;
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
+
+export const deleteInventory = createAsyncThunk(
+    "inventory/deleteInventory",
+    async ({ id }, thunkAPI) => {
+        let token = Cookies.get("access");
+
+        const makeRequest = async (token) => {
+            return await axios.delete(
+                `${process.env.REACT_APP_API_KEY}/auth/delete-sticker/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return { response, id };
+            }
+
+        } catch (error) {
+            if (error.response) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return { response, id };
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
+
 export const inventorySlice = createSlice({
     name: "inventory",
     initialState: {
@@ -67,6 +147,18 @@ export const inventorySlice = createSlice({
             .addCase(getInventory.rejected, (state, action) => {
                 state.status = "error";
                 state.error = action.payload.message;
+            })
+            .addCase(deleteInventory.fulfilled, (state, action) => {
+                state.status = "success";
+                state.data =
+                    state.data.filter(
+                        (item) => item.product_code !== action.payload.id
+                    );
+                state.error = null;
+            })
+            .addCase(deleteInventory.rejected, (state, action) => {
+                state.status = "error";
+                state.error = action.payload?.message || action.error.message;
             });
     },
 });

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { userLogin } from "../features/login/loginSlice";
 import { useNavigate } from "react-router-dom";
+import { setSnackBarStatus } from "../features/snackbar/snackBarSlice";
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -85,11 +86,28 @@ function LoginPage() {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await dispatch(userLogin(userData)).unwrap();
-            navigate("/")
-            setIsLoading(false);
+            const response = await dispatch(userLogin(userData)).unwrap();
+
+            if (response.status === 200) {
+                dispatch(
+                    setSnackBarStatus({
+                        status: "success",
+                        isOpen: true,
+                        message: `Hi, Login Successful! 👋`,
+                    })
+                );
+
+                navigate("/")
+                setIsLoading(false);
+            }
         } catch (error) {
-            console.error(error)
+            dispatch(
+                setSnackBarStatus({
+                    status: "error",
+                    isOpen: true,
+                    message: error?.data?.detail,
+                })
+            );
             setIsLoading(false);
         }
     };

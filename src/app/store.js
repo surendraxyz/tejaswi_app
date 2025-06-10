@@ -6,9 +6,11 @@ import { stickerGeneratorSlice } from "../features/sticker-generator/stickerGene
 import { adminConfigSlice } from "../features/admin-config/adminConfigSlice";
 import { inventorySlice } from "../features/inventory/inventorySlice";
 import { dispatchSlice } from "../features/dispatch/dispatchSlice";
+import { snackbarSlice } from "../features/snackbar/snackBarSlice";
 
 const store = configureStore({
     reducer: {
+        snackbar: snackbarSlice.reducer,
         login: loginSlice.reducer,
         register: registerSlice.reducer,
         stickerGeneratorDrop: stickerGeneratorDroplistSlice.reducer,

@@ -91,12 +91,17 @@ export const getDispatchData = createAsyncThunk(
 
 export const getDispatchHistoryData = createAsyncThunk(
     "dispatch/getDispatchHistoryData",
-    async (_, thunkAPI) => {
+    async (params = {}, thunkAPI) => {
         let token = Cookies.get("access");
+
+        const { startDate, endDate } = params;
+        const query = startDate && endDate
+            ? `?start_date=${startDate}&end_date=${endDate}`
+            : "";
 
         const makeRequest = async (token) => {
             return await axios.get(
-                `${process.env.REACT_APP_API_KEY}/auth/dispatch-manager/history/`,
+                `${process.env.REACT_APP_API_KEY}/auth/dispatch-manager/history/${query}`,
                 {
                     headers: {
                         'ngrok-skip-browser-warning': 'true',
@@ -171,6 +176,47 @@ export const getDispatchQrData = createAsyncThunk(
     }
 );
 
+export const deleteDispatchData = createAsyncThunk(
+    "dispatch/deleteDispatchData",
+    async (product_number, thunkAPI) => {
+        let token = Cookies.get("access");
+
+        const makeRequest = async (token) => {
+            return await axios.delete(
+                `${process.env.REACT_APP_API_KEY}/auth/scanned-products/${product_number}`,
+                {
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+        };
+        try {
+            const response = await makeRequest(token);
+            if (response.status === 200) {
+                return { response, product_number };
+            }
+
+        } catch (error) {
+            if (error.response && error.response.status === 403) {
+                try {
+                    token = await refreshToken();
+                    const response = await makeRequest(token);
+
+                    if (response.status === 200) {
+                        return { response, product_number };
+                    }
+                } catch (refresherror) {
+                    return thunkAPI.rejectWithValue(refresherror.response);
+                }
+            } else {
+                return thunkAPI.rejectWithValue(error.response);
+            }
+        }
+    }
+);
+
 export const dispatchSlice = createSlice({
     name: "dispatch",
     initialState: {
@@ -208,6 +254,19 @@ export const dispatchSlice = createSlice({
             .addCase(getDispatchHistoryData.rejected, (state, action) => {
                 state.status = "error";
                 state.error = action.payload.message;
+            })
+            .addCase(deleteDispatchData.fulfilled, (state, action) => {
+
+                state.status = "success";
+                state.data =
+                    state.data.filter(
+                        (item) => item.product_number !== action.payload.product_number
+                    );
+                state.error = null;
+            })
+            .addCase(deleteDispatchData.rejected, (state, action) => {
+                state.status = "error";
+                state.error = action.payload?.message || action.error.message;
             });
     },
 });

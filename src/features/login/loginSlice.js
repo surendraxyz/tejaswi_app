@@ -42,6 +42,7 @@ export const loginSlice = createSlice({
             })
             .addCase(userLogin.fulfilled, (state, action) => {
                 state.status = "logged in";
+                Cookies.set("role", action.payload.data.role);
                 Cookies.set("access", action.payload.data.access_token);
                 Cookies.set("refresh", action.payload.data.refresh_token);
                 state.error = null;

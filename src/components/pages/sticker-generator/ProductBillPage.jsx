@@ -4,21 +4,26 @@ import {
     Typography,
     IconButton,
     Divider,
-    Grid,
-    Paper,
-    InputLabel,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    Stack,
 } from '@mui/material';
 import { IoClose } from "react-icons/io5";
 import { styled } from '@mui/material/styles';
 
-const InputLabelComponent = styled(InputLabel)(({ theme }) => ({
+
+const TableCellComponent = styled(TableCell)(({ theme }) => ({
     fontSize: "14px",
-    fontWeight: 550,
-    color: "#000",
-    marginBottom: "8px",
+    fontWeight: 500,
+    padding: "12px 25px",
+    whiteSpace: "nowrap",
 }));
 
+
 const ProductBillModal = ({ open, setOpen, item, qr }) => {
+
     return (
         <Modal open={open} onClose={() => setOpen(false)}>
             <Box
@@ -37,7 +42,7 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                         xs: '95%',
                         sm: '90%',
                         md: '75%',
-                        lg: '60%',
+                        lg: '40%',
                     },
                 }}
             >
@@ -51,67 +56,21 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                     </IconButton>
                 </Box>
 
-                <Divider sx={{ mb: 3 }} />
+                <Divider />
+                <Stack direction="row" justifyContent="space-between" margin="15px 0">
+                    <Box>
+                        <h3 style={{ fontSize: "18px", margin: "0px" }}>{item?.trading_name}</h3>
+                        <p style={{ fontSize: "12px", margin: "0px" }}>MADE IN INDIA</p>
+                        <p style={{ fontSize: "12px", margin: "0px" }}>Manufactured by</p>
+                        <h3 style={{ fontSize: "16px", margin: "0px" }}>Tejaswi Nonwovens Pvt. Ltd</h3>
 
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Product Number</InputLabelComponent>
-                        <InputLabelComponent>{item?.product_number}</InputLabelComponent>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Serial Number</InputLabelComponent>
-                        <InputLabelComponent>{item?.serial_number}</InputLabelComponent>
-                    </Grid>
-
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Gross Weight</InputLabelComponent>
-                        <InputLabelComponent>{`${item?.gross_weight} kg`}</InputLabelComponent>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Net Weight</InputLabelComponent>
-                        <InputLabelComponent>{`${item?.net_weight} kg`}</InputLabelComponent>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>GSM</InputLabelComponent>
-                        <InputLabelComponent>{item?.gsm}</InputLabelComponent>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Dimensions</InputLabelComponent>
-                        <InputLabelComponent>{`${item?.length} × ${item?.width}`}</InputLabelComponent>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Production Date</InputLabelComponent>
-                        <InputLabelComponent>{item?.production_date}</InputLabelComponent>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Shift</InputLabelComponent>
-                        <InputLabelComponent>{item?.shift}</InputLabelComponent>
-                    </Grid>
-                    <Grid item xs={12} sm={4} md={4} lg={4}>
-                        <InputLabelComponent>Trading Name</InputLabelComponent>
-                        <InputLabelComponent>{item?.trading_name}</InputLabelComponent>
-                    </Grid>
-                </Grid>
-
-
-                <Paper
-                    elevation={3}
-                    sx={{
-                        p: 2,
-                        textAlign: 'center',
-                        borderRadius: 3,
-                        backgroundColor: '#f5f5f5',
-                    }}
-                >
-                    <Typography variant="subtitle1" fontWeight="bold" mb={1}>
-                        QR Code
-                    </Typography>
+                    </Box>
                     <Box
                         component="img"
                         src={qr}
                         alt="QR Code"
                         sx={{
-                            width: '100%',
+                            width: "1181px",
                             maxWidth: 200,
                             height: 'auto',
                             borderRadius: 2,
@@ -120,7 +79,68 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                             p: 1,
                         }}
                     />
-                </Paper>
+                </Stack>
+
+                <Table sx={{ border: "1px solid #ccc" }}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCellComponent>
+                                Roll No
+                            </TableCellComponent>
+                            <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
+                                : {item?.serial_number}
+                            </TableCellComponent>
+                            <TableCellComponent>
+                                Colour
+                            </TableCellComponent>
+                            <TableCellComponent >
+                                : {item?.colour?.name}
+                            </TableCellComponent>
+                        </TableRow>
+                        <TableRow>
+                            <TableCellComponent>
+                                Length
+                            </TableCellComponent>
+                            <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
+                                : {item?.length}
+                            </TableCellComponent>
+                            <TableCellComponent>
+                                Width
+                            </TableCellComponent>
+                            <TableCellComponent>
+                                : {item?.width}
+                            </TableCellComponent>
+                        </TableRow>
+                        <TableRow>
+                            <TableCellComponent>
+                                Quality
+                            </TableCellComponent>
+                            <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
+                                : {item?.quality?.name}
+                            </TableCellComponent>
+                            <TableCellComponent>
+                                GSM
+                            </TableCellComponent>
+                            <TableCellComponent>
+                                : {item?.gsm}
+                            </TableCellComponent>
+                        </TableRow>
+                        <TableRow>
+                            <TableCellComponent>
+                                Gross Weight
+                            </TableCellComponent>
+                            <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
+                                : {item?.gross_weight}
+                            </TableCellComponent>
+                            <TableCellComponent>
+                                Net Weight
+                            </TableCellComponent>
+                            <TableCellComponent>
+                                : {item?.net_weight}
+                            </TableCellComponent>
+                        </TableRow>
+                    </TableHead>
+                </Table>
             </Box>
         </Modal>
     );

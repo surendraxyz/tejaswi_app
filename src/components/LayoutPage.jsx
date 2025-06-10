@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { styled } from "@mui/material/styles";
 import { Box, IconButton, List, ListItemButton, ListItemText } from '@mui/material';
-import { navbar_context } from '../utils/textUtils';
+import { getNavbarContext } from '../utils/textUtils';
 import { Link, Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import theme from '../utils/theme';
@@ -51,7 +51,7 @@ const PageContainer = styled(Box)(({ open, theme }) => ({
 function LayoutPage() {
     const [open, setOpen] = useState(true);
     const [activeLink, setActiveLink] = useState(null);
-
+    const { links } = getNavbarContext();
     const handleDrawerToggle = () => {
         setOpen((prev) => !prev);
     };
@@ -66,7 +66,7 @@ function LayoutPage() {
                 <SideNavContainer open={open}>
                     <BodyContainer>
                         <List sx={{ marginTop: "24px" }}>
-                            {navbar_context.links.map((data, index) => (
+                            {links.map((data, index) => (
                                 <Link
                                     to={data.path}
                                     style={{

@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import { useEffect, useRef, useState } from 'react';
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
-import { createAdminConfig, createColourAdminConfig, deleteAdminConfig, getAdminConfig } from '../../../features/admin-config/adminConfigSlice';
+import { createAdminConfig, createColourAdminConfig, deleteAdminConfig, getAdminConfig, getColorUpdateAdminConfig } from '../../../features/admin-config/adminConfigSlice';
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -85,6 +85,26 @@ function AdminConfigPage() {
 
     const { data } = useSelector((state) => state.adminConfig)
 
+    const handleColourSwitchChange = async (item) => {
+        const updatedItem = {
+            ...item,
+            is_white: !item.is_white,
+        };
+
+        try {
+
+            const response = await dispatch(getColorUpdateAdminConfig(updatedItem)).unwrap();
+            if (response.status === 200) {
+                dispatch(getAdminConfig());
+            }
+        } catch (error) {
+            console.error("Failed to update colour switch:", error);
+        }
+    };
+
+
+
+
     const handleSwitchChange = (event) => {
         setIsChecked(event.target.checked);
     };
@@ -114,7 +134,7 @@ function AdminConfigPage() {
             if (response.status === 200) {
                 dispatch(getAdminConfig())
             }
-            setUserData({
+            setColourData({
                 textColourData: "",
             })
             setIsLoader(false);
@@ -247,9 +267,18 @@ function AdminConfigPage() {
                         </Grid>
 
                         <Grid item size={{ xs: 1, }}>
-                            <Switch checked={isChecked}
-                                onChange={handleSwitchChange} />
+                            <Stack justifyContent="center" alignItems='center'>
+                                <label style={{ fontSize: "12px", marginBottom: "4px" }}>Is White</label>
+                                <Switch
+                                    checked={isChecked}
+                                    onChange={handleSwitchChange}
+                                    size="small"
+                                    sx={{ transform: "scale(0.9)" }}
+                                />
+                            </Stack>
+
                         </Grid>
+
 
 
                         <Grid item size={{ xs: 12, md: 1, lg: 1 }}>
@@ -324,7 +353,15 @@ function AdminConfigPage() {
                                             direction="row"
                                             spacing={1}
                                             justifyContent="center"
-                                        ><Switch checked={item?.is_white === true} />
+                                        >
+                                            <Switch
+                                                checked={!!item.is_white}
+                                                size="small"
+                                                sx={{ transform: "scale(0.9)" }}
+                                                onChange={() => handleColourSwitchChange(item)}
+                                            />
+
+
                                             <Tooltip title="Delete">
                                                 <IconButton color="error" onClick={() => handleDelete(item)}>
                                                     <MdOutlineDeleteOutline style={{ fontSize: "20px" }} />
@@ -392,7 +429,7 @@ function AdminConfigPage() {
                 </TableContainerComponent>
             </BoxContainer>
         </InnerContainer>
-        </Container>
+        </Container >
     )
 }
 

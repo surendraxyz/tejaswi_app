@@ -74,7 +74,7 @@ function StickerGeneratorPage() {
     const [userData, setUserData] = useState({
         tradingName: "bharat",
         shift: "8AM-8PM",
-        productionDate: "",
+        productionDate: new Date().toISOString().split('T')[0],
         serialNumber: "",
         quality: "",
         gsm: "",
@@ -146,8 +146,6 @@ function StickerGeneratorPage() {
             setIsLoading(false);
         }
     };
-
-
 
     useEffect(() => {
         if (droplist?.colours?.length > 0 && !userData.colour) {
@@ -231,6 +229,7 @@ function StickerGeneratorPage() {
                                     name="serialNumber"
                                     value={userData.serialNumber}
                                     onChange={handleChange}
+                                    inputProps={{ maxLength: 3 }}
                                 />
                             </Grid>
                             <Grid item size={{ xs: 12, md: 6, lg: 4 }}>

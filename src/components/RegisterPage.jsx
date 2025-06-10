@@ -3,6 +3,7 @@ import { styled } from "@mui/material/styles";
 import { useState } from "react";
 import { registerUser } from "../features/register/registerSlice";
 import { useDispatch } from "react-redux";
+import { setSnackBarStatus } from "../features/snackbar/snackBarSlice";
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -91,10 +92,31 @@ function RegisterPage() {
         setIsLoading(true);
 
         try {
-            await dispatch(registerUser(userData)).unwrap();
-            setIsLoading(false);
+            const response = await dispatch(registerUser(userData)).unwrap();
+            if (response.status === 200) {
+                dispatch(
+                    setSnackBarStatus({
+                        status: "success",
+                        isOpen: true,
+                        message: `🎉 User created successfully!`,
+                    })
+                );
+
+                setIsLoading(false);
+                setUserData({
+                    userName: "",
+                    password: "",
+                    role: ""
+                })
+            }
         } catch (error) {
-            console.error(error)
+            dispatch(
+                setSnackBarStatus({
+                    status: "error",
+                    isOpen: true,
+                    message: error?.data?.detail,
+                })
+            );
             setIsLoading(false);
         }
 
