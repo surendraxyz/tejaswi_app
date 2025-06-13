@@ -58,7 +58,11 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
         colour: "",
         productType: "",
         netWeight: "",
+        grossWeight: "",
+        length: "",
+        width: "",
         status: "",
+        laminated: ""
     });
 
     const { droplist } = useSelector((state) => state.stickerGeneratorDrop)
@@ -75,8 +79,6 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
         })
     }
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
@@ -86,7 +88,11 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
             colour_id: Number(userData?.colour),
             quality_id: Number(userData?.quality),
             net_weight: Number(userData?.netWeight),
-            is_sold: userData?.status
+            gross_weight: Number(userData?.grossWeight),
+            length: Number(userData?.length),
+            width: Number(userData?.width),
+            is_sold: userData?.status,
+            leminated: userData?.laminated
         }
 
         try {
@@ -115,16 +121,17 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
         }
     };
 
-
-
-
     useEffect(() => {
         if (filterIsData) {
             setUserData({
                 quality: filterIsData?.quality_id || "",
                 colour: filterIsData?.colour_id || "",
                 productType: filterIsData?.product_type_id || "",
-                netWeight: filterIsData?.weight || "",
+                netWeight: filterIsData?.net_weight || "",
+                grossWeight: filterIsData?.gross_weight || "",
+                length: filterIsData?.length || "",
+                width: filterIsData?.width || "",
+                laminated: Boolean(filterIsData?.leminated),
                 status: Boolean(filterIsData?.is_sold),
 
             });
@@ -242,6 +249,42 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
                             })}
                         </SelectContainer>
                     </Grid>
+                    <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
+                        <InputLabelComponent>Length (meters)*</InputLabelComponent>
+                        <InputComponent
+                            type="number"
+                            placeholder="Enter Length"
+                            fullWidth
+                            required
+                            name="length"
+                            value={userData.length}
+                            onChange={handleChange}
+                        />
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
+                        <InputLabelComponent>Width (inches)*</InputLabelComponent>
+                        <InputComponent
+                            type="number"
+                            placeholder="Enter Width"
+                            fullWidth
+                            required
+                            name="width"
+                            value={userData.width}
+                            onChange={handleChange}
+                        />
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
+                        <InputLabelComponent>Gross Weight (kg)*</InputLabelComponent>
+                        <InputComponent
+                            type="number"
+                            placeholder="Enter Gross Weight"
+                            fullWidth
+                            required
+                            name="grossWeight"
+                            value={userData.grossWeight}
+                            onChange={handleChange}
+                        />
+                    </Grid>
 
                     <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
                         <InputLabelComponent>Net Weight (kg)*</InputLabelComponent>
@@ -256,6 +299,21 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
                         />
                     </Grid>
 
+                    <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
+                        <InputLabelComponent>Laminated*</InputLabelComponent>
+                        <SelectContainer
+                            value={userData.laminated}
+                            required
+                            fullWidth
+                            defaultValue="none"
+                            name="laminated"
+                            onChange={handleChange}
+                        >
+                            <MenuItem value={true}>Yes</MenuItem>
+                            <MenuItem value={false}>No</MenuItem>
+                        </SelectContainer>
+                    </Grid>
+
                     <Grid item size={{ xs: 6, md: 3, lg: 2 }}>
                         <InputLabelComponent>Status*</InputLabelComponent>
 
@@ -267,10 +325,7 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
                         />
 
                     </Grid>
-                    <Grid item size={{ xs: 6, md: 3, lg: 2 }}>
-                        <InputLabelComponent>Leminated*</InputLabelComponent>
-                        <InputLabelComponent>-</InputLabelComponent>
-                    </Grid>
+
 
                     <Grid item size={{ xs: 12, }}>
                         <Stack direction="row" justifyContent="end">
@@ -290,7 +345,7 @@ const EditInventoryPage = ({ isId, open, setOpen }) => {
 
 
             </Box>
-        </Modal>
+        </Modal >
     );
 };
 

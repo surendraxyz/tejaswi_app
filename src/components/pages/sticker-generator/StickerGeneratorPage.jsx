@@ -120,24 +120,23 @@ function StickerGeneratorPage() {
             if (response.status === 200) {
                 setQrCodeData(response?.data)
                 const qrCode = await dispatch(showStickerGenerator(response?.data?.id)).unwrap();
-
                 setQrCodeScenner(qrCode)
                 setOpen(true);
             }
             setUserData({
-                tradingName: "",
-                shift: "",
-                productionDate: "",
                 serialNumber: "",
-                quality: droplist?.qualities[0]?.id || "",
+                tradingName: "bharat",
+                shift: "8AM-8PM",
+                productionDate: new Date().toISOString().split('T')[0],
+                quality: "",
                 gsm: "",
-                colour: droplist?.colours[0]?.id || "",
-                productType: droplist?.product_types[0]?.id || "",
+                colour: "",
+                productType: "",
                 netWeight: "",
                 grossWeight: "",
                 length: "",
                 width: "",
-                storageLocation: droplist?.storage_locations[0]?.id || "",
+                storageLocation: "",
             });
 
             setIsLoading(false);
@@ -220,10 +219,10 @@ function StickerGeneratorPage() {
                                 />
                             </Grid>
                             <Grid item size={{ xs: 12, md: 6, lg: 4 }}>
-                                <InputLabelComponent>Roll/Patti Serial Number*</InputLabelComponent>
+                                <InputLabelComponent>Serial Number*</InputLabelComponent>
                                 <InputComponent
                                     type="text"
-                                    placeholder="Enter Roll/Patti Serial Number"
+                                    placeholder="Serial Number"
                                     fullWidth
                                     required
                                     name="serialNumber"

@@ -84,6 +84,32 @@ export const updateInventory = createAsyncThunk(
     }
 );
 
+export const showInventorySticker = createAsyncThunk(
+    "inventory/showInventorySticker",
+    async ({ id }, thunkAPI) => {
+        try {
+            let token = Cookies.get("access");
+            const response = await axios.get(
+                `${process.env.REACT_APP_API_KEY}/auth/inventroy-data/${id}/qr-code/`,
+                {
+
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true',
+                        Authorization: `Bearer ${token}`,
+                    }
+                }
+            );
+
+            if (response.status === 200) {
+                return response;
+            }
+
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.response);
+        }
+    }
+);
+
 export const deleteInventory = createAsyncThunk(
     "inventory/deleteInventory",
     async ({ id }, thunkAPI) => {
@@ -129,6 +155,7 @@ export const inventorySlice = createSlice({
     initialState: {
         status: "idle",
         data: null,
+        items: null,
         error: null,
     },
     reducers: {},
@@ -145,6 +172,19 @@ export const inventorySlice = createSlice({
                 state.error = null;
             })
             .addCase(getInventory.rejected, (state, action) => {
+                state.status = "error";
+                state.error = action.payload.message;
+            })
+            .addCase(showInventorySticker.pending, (state) => {
+                state.status = "loading";
+                state.error = null;
+            })
+            .addCase(showInventorySticker.fulfilled, (state, action) => {
+                state.status = "success";
+                state.items = action.payload.data
+                state.error = null;
+            })
+            .addCase(showInventorySticker.rejected, (state, action) => {
                 state.status = "error";
                 state.error = action.payload.message;
             })

@@ -14,6 +14,7 @@ import { styled } from '@mui/material/styles';
 import { useRef } from 'react';
 
 
+
 const Container = styled(Box)(({ theme }) => ({
     position: "absolute",
     top: "50%",
@@ -31,6 +32,12 @@ const Container = styled(Box)(({ theme }) => ({
     },
 }));
 
+const InnerContainer = styled(Box)(({ theme }) => ({
+    padding: "20px 25px",
+    paddingBottom: "25px",
+    maxHeight: "calc(75vh - 80px)",
+    overflowY: "auto",
+}));
 
 const Header = styled(Box)(({ theme }) => ({
     display: "flex",
@@ -40,12 +47,6 @@ const Header = styled(Box)(({ theme }) => ({
     padding: "15px 25px",
 }));
 
-const InnerContainer = styled(Box)(({ theme }) => ({
-    padding: "20px 25px",
-    paddingBottom: "25px",
-    maxHeight: "calc(75vh - 80px)",
-    overflowY: "auto",
-}));
 
 const TableCellComponent = styled(TableCell)(({ theme }) => ({
     fontSize: "14px",
@@ -55,7 +56,7 @@ const TableCellComponent = styled(TableCell)(({ theme }) => ({
 }));
 
 
-const ProductBillModal = ({ open, setOpen, item, qr }) => {
+function InventoryBillPage({ isOpen, setIsOpen, items }) {
     const printRef = useRef();
 
     const handlePrint = () => {
@@ -66,9 +67,10 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
         document.body.innerHTML = originalContents;
         window.location.reload();
     };
-
     return (
-        <Modal open={open} onClose={() => setOpen(false)}>
+
+        <Modal open={isOpen}
+        >
             <Container
                 sx={{
                     "&:focus-visible": {
@@ -79,30 +81,28 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
             >
                 <Header>
                     <Typography variant="h6" fontWeight="bold">
-                        Product Invoice
+                        Inventory Invoice
                     </Typography>
-                    <IconButton onClick={() => setOpen(false)}>
+                    <IconButton onClick={() => setIsOpen(false)}>
                         <IoClose />
                     </IconButton>
                 </Header>
-
                 <InnerContainer ref={printRef}>
 
                     <Stack direction="row" justifyContent="space-between" margin="15px 0">
                         <Box>
-                            <h3 style={{ fontSize: "18px", margin: "0px" }}>{item?.trading_name}</h3>
+                            <h3 style={{ fontSize: "18px", margin: "0px" }}>{items?.trading_name}</h3>
                             <p style={{ fontSize: "12px", margin: "0px" }}>MADE IN INDIA</p>
-                            {item?.trading_name?.toLowerCase() !== "green" && (
+                            {items?.trading_name?.toLowerCase() !== "green" && (
                                 <>
                                     <p style={{ fontSize: "12px", margin: "0px" }}>Manufactured by</p>
                                     <h3 style={{ fontSize: "16px", margin: "0px" }}>Tejaswi Nonwovens Pvt. Ltd</h3>
                                 </>
                             )}
-
                         </Box>
                         <Box
                             component="img"
-                            src={qr}
+                            src={`data:image/png;base64,${items?.qr_code_base64}`}
                             alt="QR Code"
                             sx={{
                                 width: "1181px",
@@ -114,6 +114,7 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                                 p: 1,
                             }}
                         />
+
                     </Stack>
 
                     <Table sx={{ border: "1px solid #ccc" }}>
@@ -123,13 +124,13 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                                     Roll No
                                 </TableCellComponent>
                                 <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
-                                    : {item?.serial_number}
+                                    : {items?.serial_number}
                                 </TableCellComponent>
                                 <TableCellComponent>
                                     Colour
                                 </TableCellComponent>
                                 <TableCellComponent >
-                                    : {item?.colour?.name}
+                                    : {items?.colour?.name}
                                 </TableCellComponent>
                             </TableRow>
                             <TableRow>
@@ -137,13 +138,13 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                                     Length
                                 </TableCellComponent>
                                 <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
-                                    : {item?.length}
+                                    : {items?.length}
                                 </TableCellComponent>
                                 <TableCellComponent>
                                     Width
                                 </TableCellComponent>
                                 <TableCellComponent>
-                                    : {item?.width}
+                                    : {items?.width}
                                 </TableCellComponent>
                             </TableRow>
                             <TableRow>
@@ -151,13 +152,13 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                                     Quality
                                 </TableCellComponent>
                                 <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
-                                    : {item?.quality?.name}
+                                    : {items?.quality?.name}
                                 </TableCellComponent>
                                 <TableCellComponent>
                                     GSM
                                 </TableCellComponent>
                                 <TableCellComponent>
-                                    : {item?.gsm}
+                                    : {items?.gsm}
                                 </TableCellComponent>
                             </TableRow>
                             <TableRow>
@@ -165,18 +166,17 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                                     Gross Weight
                                 </TableCellComponent>
                                 <TableCellComponent sx={{ borderRight: "1px solid #ccc" }}>
-                                    : {item?.gross_weight}
+                                    : {items?.gross_weight}
                                 </TableCellComponent>
                                 <TableCellComponent>
                                     Net Weight
                                 </TableCellComponent>
                                 <TableCellComponent>
-                                    : {item?.net_weight}
+                                    : {items?.net_weight}
                                 </TableCellComponent>
                             </TableRow>
                         </TableHead>
                     </Table>
-
                     <Box sx={{ textAlign: "center", mt: 4 }}>
                         <button
                             onClick={handlePrint}
@@ -194,9 +194,11 @@ const ProductBillModal = ({ open, setOpen, item, qr }) => {
                         </button>
                     </Box>
                 </InnerContainer>
+
             </Container>
         </Modal>
-    );
-};
 
-export default ProductBillModal;
+    );
+}
+
+export default InventoryBillPage

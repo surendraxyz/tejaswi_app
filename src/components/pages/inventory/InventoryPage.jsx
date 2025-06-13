@@ -1,11 +1,13 @@
-import { Box, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, IconButton, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteInventory, getInventory } from "../../../features/inventory/inventorySlice";
+import { deleteInventory, getInventory, showInventorySticker } from "../../../features/inventory/inventorySlice";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import EditInventoryPage from "./EditInventoryPage";
+import { IoMdEye } from "react-icons/io";
+import InventoryBillPage from "./InventoryBillPage";
 
 const Container = styled(Box)(({ theme }) => ({
     width: "100%",
@@ -69,8 +71,9 @@ function InventoryPage() {
     const dispatch = useDispatch()
     const [open, setOpen] = useState(false)
     const [isId, setIsId] = useState("")
+    const [isOpen, setIsOpen] = useState(false);
 
-    const { data } = useSelector((state) => state.inventory)
+    const { data, items } = useSelector((state) => state.inventory)
 
     useEffect(() => {
         if (!runFunction.current) {
@@ -82,6 +85,7 @@ function InventoryPage() {
     return (
         <>
             <EditInventoryPage isId={isId} open={open} setOpen={setOpen} />
+            <InventoryBillPage isOpen={isOpen} setIsOpen={setIsOpen} items={items} />
             <Container>
                 <InnerContainer>
                     <BoxContainer elevation={2}>
@@ -93,13 +97,7 @@ function InventoryPage() {
                                 <TableHead>
                                     <TableRow sx={{ background: "#2B2C40" }}>
                                         <TableCellComponent sx={{ width: "10%" }}>
-                                            Product Code
-                                        </TableCellComponent>
-                                        <TableCellComponent sx={{ width: "10%" }}>
-                                            Type
-                                        </TableCellComponent>
-                                        <TableCellComponent sx={{ width: "10%" }} align="center">
-                                            Weight
+                                            Product No.
                                         </TableCellComponent>
                                         <TableCellComponent sx={{ width: "10%" }} align="center">
                                             Color
@@ -108,12 +106,27 @@ function InventoryPage() {
                                             Quality
                                         </TableCellComponent>
                                         <TableCellComponent sx={{ width: "10%" }}>
+                                            Type
+                                        </TableCellComponent>
+                                        <TableCellComponent sx={{ width: "10%" }} align="center">
+                                            Length
+                                        </TableCellComponent>
+                                        <TableCellComponent sx={{ width: "10%" }} align="center">
+                                            Width
+                                        </TableCellComponent>
+                                        <TableCellComponent sx={{ width: "10%" }} align="center">
+                                            Gross Weight
+                                        </TableCellComponent>
+                                        <TableCellComponent sx={{ width: "10%" }} align="center">
+                                            Net Weight
+                                        </TableCellComponent>
+                                        <TableCellComponent sx={{ width: "10%" }}>
                                             Status
                                         </TableCellComponent>
                                         <TableCellComponent sx={{ width: "10%" }}>
-                                            leminated
+                                            laminated
                                         </TableCellComponent>
-                                        <TableCellComponent sx={{ width: "10%" }} align="center">
+                                        <TableCellComponent sx={{ width: "15%" }} align="center">
                                             Action
                                         </TableCellComponent>
                                     </TableRow>
@@ -134,14 +147,6 @@ function InventoryPage() {
                                                             ? data?.product_code
                                                             : "-"}
                                                     </TableCellContainer>
-                                                    <TableCellContainer>
-                                                        {data?.type}
-                                                    </TableCellContainer>
-                                                    <TableCellContainer align="center">
-                                                        {data?.weight
-                                                            ? data?.weight
-                                                            : "-"}
-                                                    </TableCellContainer>
                                                     <TableCellContainer align="center">
                                                         {data?.color ? data?.color : "-"}
                                                     </TableCellContainer>
@@ -149,14 +154,38 @@ function InventoryPage() {
                                                         {data?.quality ? data?.quality : "-"}
                                                     </TableCellContainer>
                                                     <TableCellContainer>
+                                                        {data?.type}
+                                                    </TableCellContainer>
+                                                    <TableCellContainer align="center">
+                                                        {data?.length
+                                                            ? data?.length
+                                                            : "-"}
+                                                    </TableCellContainer>
+                                                    <TableCellContainer align="center">
+                                                        {data?.width
+                                                            ? data?.width
+                                                            : "-"}
+                                                    </TableCellContainer>
+                                                    <TableCellContainer align="center">
+                                                        {data?.gross_weight}
+                                                    </TableCellContainer>
+                                                    <TableCellContainer align="center">
+                                                        {data?.net_weight
+                                                            ? data?.net_weight
+                                                            : "-"}
+                                                    </TableCellContainer>
+                                                    <TableCellContainer>
                                                         {data?.is_sold === "true" ? "Sold" : "Unsold"}
                                                     </TableCellContainer>
                                                     <TableCellContainer align="center">
-                                                        -
+                                                        {data?.leminated === false ? "No" : "Yes"}
                                                     </TableCellContainer>
                                                     <TableCellContainer align="center">
-                                                        <IconButton onClick={() => { setOpen(true); setIsId(data?.product_code) }}><FaRegEdit style={{ fontSize: "18px", color: "green" }} /></IconButton>
-                                                        <IconButton><MdOutlineDeleteOutline onClick={() => dispatch(deleteInventory({ id: data?.product_code }))} style={{ fontSize: "20px", color: "red" }} /></IconButton>
+                                                        <Stack direction="row" gap={1}>
+                                                            <IconButton><IoMdEye onClick={() => { setIsOpen(true); dispatch(showInventorySticker({ id: data?.product_code })) }} style={{ fontSize: "20px", color: "blue" }} /></IconButton>
+                                                            <IconButton onClick={() => { setOpen(true); setIsId(data?.product_code) }}><FaRegEdit style={{ fontSize: "18px", color: "green" }} /></IconButton>
+                                                            <IconButton><MdOutlineDeleteOutline onClick={() => dispatch(deleteInventory({ id: data?.product_code }))} style={{ fontSize: "20px", color: "red" }} /></IconButton>
+                                                        </Stack>
                                                     </TableCellContainer>
                                                 </TableRow>
                                             );

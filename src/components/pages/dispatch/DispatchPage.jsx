@@ -253,10 +253,9 @@ function DispatchPage() {
                                 {data?.map((value, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{value?.product_number}</TableCell>
-                                        <TableCell>{value?.product_type}</TableCell>
-                                        <TableCell>{value?.colour}</TableCell>
-                                        <TableCell>{value?.colour}</TableCell>
                                         <TableCell>{value?.quality}</TableCell>
+                                        <TableCell>{value?.colour}</TableCell>
+                                        <TableCell>{value?.product_type}</TableCell>
                                         <TableCell>{value?.net_weight}</TableCell>
                                         <TableCell sx={{ width: "80px" }}><IconButton color="error" onClick={() => dispatch(deleteDispatchData(value?.product_number))}><MdOutlineDeleteOutline style={{ fontSize: "20px" }} /></IconButton></TableCell>
                                     </TableRow>

@@ -110,31 +110,59 @@ function DispatchedHistoryPage() {
             );
 
             const dispatch = response?.data;
-
             const doc = new jsPDF();
             doc.setFontSize(16);
-            doc.text("Dispatch History", 14, 15);
+            doc.text("Packing Slip", 14, 15);
 
-            let startY = 25;
-
+            let y = 25;
             doc.setFontSize(12);
-            doc.text(`Dispatch ID: ${dispatch.id || ''}`, 14, startY);
-            doc.text(`Client: ${dispatch.select_client || ''}`, 14, startY + 6);
-            doc.text(`Vehicle Number: ${dispatch.vehicle_number || ''}`, 14, startY + 12);
-            doc.text(`Driver Contact: ${dispatch.driver_contact || ''}`, 14, startY + 18);
-            doc.text(`Status: ${dispatch.status || ''}`, 14, startY + 24);
-            doc.text(`Date: ${formatDate(dispatch.created_at)}`, 14, startY + 30);
-            doc.text(`Items: ${dispatch.total_items || 0} | Total Weight: ${dispatch.total_weight || 0}`, 14, startY + 36);
+            doc.text(`Dispatch ID: ${dispatch.id || ''}`, 14, y);
+            doc.text(`Client: ${dispatch.select_client || ''}`, 14, y += 6);
+            doc.text(`Vehicle Number: ${dispatch.vehicle_number || ''}`, 14, y += 6);
+            doc.text(`Driver Contact: ${dispatch.driver_contact || ''}`, 14, y += 6);
+            doc.text(`Date: ${formatDate(dispatch.created_at)}`, 14, y += 6);
+            doc.text(`Items: ${dispatch.total_items || 0} | Total Weight: ${dispatch.total_weight || 0} kg`, 14, y += 6);
 
+            y += 10;
+
+            const summary = dispatch.disptach_summary;
+
+            const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+            const renderSection = (color, categories) => {
+                doc.setFontSize(14);
+                doc.text(`${color}`, 14, y += 8);
+                Object.entries(categories).forEach(([category, items]) => {
+                    doc.setFontSize(12);
+                    doc.text(`${capitalize(category)}`, 16, y += 6);
+
+                    items.forEach(({ type, pieces, total_weight_kg }) => {
+                        doc.text(`• ${type} —  ${pieces} pcs  |  ${total_weight_kg} kg`, 18, y += 6);
+                    });
+                });
+            };
+
+            // Loop through White, Blue, Green sections
+            Object.entries(summary).forEach(([color, categories]) => {
+                renderSection(`${color}`, categories);
+            });
+
+            y += 10;
             autoTable(doc, {
-                startY: startY + 42,
-                head: [['Product Number', 'Type', 'Weight', 'Color', 'Quality']],
+                startY: y + 4,
+                head: [['Product No.', 'Color', 'Quality', 'Type', 'Gross Weight', 'Weight', 'GSM', 'Length', 'Width']],
                 body: dispatch.scanned_items?.map(item => ([
                     item.product_number || '-',
-                    item.product_type || '-',
-                    item.weight || '-',
                     item.colour || '-',
-                    item.quality || '-'
+                    item.quality || '-',
+                    item.product_type || '-',
+                    item.gross_weight || '-',
+                    item.weight || '-',
+                    item.gsm || '-',
+                    item.length || '-',
+                    item.width || '-',
+
+
                 ])) || [],
             });
 
@@ -144,6 +172,7 @@ function DispatchedHistoryPage() {
             alert("Failed to generate PDF");
         }
     };
+
 
     useEffect(() => {
         if (!runFunction.current) {
@@ -157,7 +186,7 @@ function DispatchedHistoryPage() {
             <InnerContainer>
                 <BoxContainer elevation={2}>
                     <Header>
-                        <Title>Dispatched History</Title>
+                        <Title>Packing Slip</Title>
                         <Stack direction="row" gap={3} alignItems="flex-end">
                             {/* From Date */}
                             <Box>

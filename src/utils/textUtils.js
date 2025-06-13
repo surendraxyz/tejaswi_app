@@ -54,7 +54,7 @@ const allLinks = [
 
 const rolePermissions = {
     admin: "ALL",
-    sticker_guys: ["dashboard", "sticker_generator, inventory"],
+    sticker_guys: ["dashboard", "sticker_generator", "inventory"],
     dispatch_guys: ["dashboard", "dispatch", "dispatched_history"],
 };
 
@@ -62,6 +62,7 @@ const rolePermissions = {
 export const getNavbarContext = () => {
     const role = Cookies.get("role");
     const allowed = rolePermissions[role];
+
     return {
         links: allowed === "ALL" ? allLinks : allLinks.filter(link => allowed?.includes(link.id))
     };
